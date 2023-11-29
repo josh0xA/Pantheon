@@ -10,3 +10,8 @@ Pantheon is GUI application that allows users to display information regarding c
 4. ``python pantheon.py``
 - Note: I will later add a GUI installer to make it fully indepenent of a CLI. 
 
+## Usage 
+<p align="center">
+  <img src="/imgs/pantheon_example1.PNG">
+</p>
+
