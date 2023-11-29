@@ -1,5 +1,7 @@
 # Pantheon - Insecure Camera Parsing and Intelligence
-
+<p align="center">
+  <img src="/imgs/panth_logo.png">
+</p>
 ## About Pantheon 
 Pantheon is GUI application that allows users to display information regarding cameras in many different countries as well as a live-feed for non-protected cameras. 
 
