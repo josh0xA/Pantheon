@@ -233,6 +233,7 @@ class Pantheon:
                 self.results_box.itemconfig(tk.END, {"fg": "#18E63B"})
             self.loading_label.destroy()
         self.clear_results()
+        self.clear_results2()
 
         threading.Thread(target=crawl_and_display).start()
     # add ip location to resultsbox2 on double click
