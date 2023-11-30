@@ -13,6 +13,11 @@ Pantheon is a GUI application that allows users to display information regarding
 4. ``python pantheon.py``
 - Note: I will later add a GUI installer to make it fully indepenent of a CLI. 
 
+### Ubuntu Installation 
+- First, complete steps 1,2 listed above. <br/>
+- ``chmod +x distros/ubuntu_install.sh``
+- ``./ubuntu_install.sh``
+
 ## Usage 
 <p align="center">
   <img src="/imgs/pantheon_example1.PNG">
