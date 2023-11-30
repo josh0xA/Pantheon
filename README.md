@@ -11,7 +11,7 @@ Pantheon is a GUI application that allows users to display information regarding
 2. ``cd Pantheon``
 3. ``pip install -r requirements.txt``
 4. ``python pantheon.py``
-- Note: I will later add a GUI installer to make it fully indepenent of a CLI. 
+- Note: I will later add a GUI installer to make it fully indepenent of a CLI
 
 ## Usage 
 <p align="center">
