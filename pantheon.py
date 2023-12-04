@@ -10,6 +10,9 @@ import threading
 import webview, webbrowser
 import concurrent.futures
 import re
+import requests
+import pycountry
+
 
 __author__ = "Josh Schiavone"
 __version__ = "1.0"
@@ -35,6 +38,7 @@ class Pantheon:
         self.setup_results_box()
         self.results_box.bind("<Return>", self.browser_load_url)
         self.results_box.bind("<<ListboxSelect>>", self.add_ip_location)
+        self.results_box.bind("<Button-3>", self.get_http_data)
 
         country_buttons = self.create_country_widgets(root)
         self.create_country_buttons(country_buttons)
@@ -54,8 +58,7 @@ class Pantheon:
         centered_label = tk.Label(
             root, text="IOT Camera Links (<Enter> to view LIVE\u25CF feed): ", bg="#000000", fg="#ffffff", font=("Arial", 10)
         )
-
-        centered_label.place(x=75, y=140)
+        centered_label.place(x=75, y=135)
         geo_label = tk.Label(
             root, text="Geolocation: ", bg="#000000", fg="#ffffff", font=("Arial", 10)
         )
@@ -76,7 +79,7 @@ class Pantheon:
         self.results_box["font"] = ft
         self.results_box["fg"] = "#9f9f9f"
         self.results_box["justify"] = "left"
-        self.results_box.place(x=80, y=180, width=530, height=600)
+        self.results_box.place(x=80, y=200, width=530, height=580)
 
         scrollbar = tk.Scrollbar(self.results_box, orient=tk.VERTICAL, activebackground="red")
         scrollbar.config(command=self.results_box.yview)
@@ -133,6 +136,11 @@ class Pantheon:
         )
         copyright_label.place(x=1050, y=780)
 
+        self.results_label = tk.Label(
+            root, text="", bg="#000000", fg="red", font=("Arial Italic", 8, "bold")
+        )
+        self.results_label.place(x=80, y=160)
+
     def get_platform_title(self):
         if sys.platform == "win32":
             return f"Pantheon: Developed by {__author__} - Ver {__version__} - Pantheon user: Windows"
@@ -185,11 +193,11 @@ class Pantheon:
         }
 
     def open_github(self, event):
-        github_url = "https://github.com/josh0xA/"
+        github_url = "https://github.com/josh0xA/Pantheon"
         webbrowser.open_new_tab(github_url)
 
     def open_legal(self, event):
-        legal_url = "https://joshschiavone.com/"
+        legal_url = "https://joshschiavone.com/panth_info/panth_ethical_notice.html"
         webbrowser.open_new_tab(legal_url)
 
     def browser_load_url(self, event):
@@ -219,6 +227,18 @@ class Pantheon:
         self.clear_results()
         self.execute_webcam(country)
 
+    def country_code_to_name(self, country_code):
+        try:
+            country = pycountry.countries.get(alpha_2=country_code)
+            if country:
+                if hasattr(country, 'official_name') and country.official_name:
+                    return country.official_name
+                else:
+                    return country.name
+            else:
+                return "[Null]"
+        except Exception as e: pass
+
     def webcam_execute(self, country):
         self.apply_slider()
         def crawl_and_display():
@@ -226,14 +246,20 @@ class Pantheon:
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 future = executor.submit(PantheonWebcam().crawl, country)
                 future.result()  
-                concurrent.futures.wait([future])              
+                concurrent.futures.wait([future])  
+            # remove duplicates
+            PantheonConfiguration.webcams_found = list(dict.fromkeys(PantheonConfiguration.webcams_found))            
             for webcam in PantheonConfiguration.webcams_found:
                 PantheonConfiguration.num_webcams_found += 1
                 self.results_box.insert(tk.END, webcam)
                 self.results_box.itemconfig(tk.END, {"fg": "#18E63B"})
             self.loading_label.destroy()
+            country_name = self.country_code_to_name(country)
+            self.results_label.config(text=f"Webcams Found: ({PantheonConfiguration.num_webcams_found}) in country: {country_name}\nCrawling Verbosity: {PantheonConfiguration.PANTHEON_DEFAULT_COUNT}")
+
         self.clear_results()
         self.clear_results2()
+        self.results_label.config(text="")
 
         threading.Thread(target=crawl_and_display).start()
     # add ip location to resultsbox2 on double click
@@ -257,36 +283,39 @@ class Pantheon:
                 self.results_box2.insert(tk.END, "---------------------------")
             
                 self.map_widget.set_marker(ip_location['latitude'], ip_location['longitude'], 
-                                        text=f"{ip_location['city']}, {ip_location['country']}",
+                                        text=f"{ip_location['city']}, {ip_location['country']}\n({ip_location['ip']})",
                                         font=("Arial", 9), text_color="red", image_zoom_visibility=(0, float('inf')))
         except UnboundLocalError: pass # this is fine
-            
 
+    
     def get_http_data(self, event):
-        import requests
         try:
-            self.clear_results3()
-            url = self.results_box.get(self.results_box.curselection()[0])
-            response = requests.get(url)
+            selected_index = self.results_box.curselection()[0]
+            selected_url = self.results_box.get(selected_index)
+            response = requests.get(selected_url)
 
-            self.results_box3.insert(tk.END, f"HTTP Request URL: {response.url}\n")
-            self.results_box3.insert(tk.END, f"HTTP Response Code: {response.status_code}\n")
+            self.show_http_data_window(response)
+        except Exception as e: pass
 
-            chunk_size = 80
-            headers_text = str(response.headers)
-            self.results_box3.insert(tk.END, "HTTP Headers:\n")
-            for i in range(0, len(headers_text), chunk_size):
-                self.results_box3.insert(tk.END, headers_text[i:i+chunk_size])
+    def show_http_data_window(self, response):
+        http_data_window = tk.Toplevel(root)
+        http_data_window.title(f"HTTP Data for: {response.url}")
+        http_data_window.geometry("800x600")
 
-            chunk_size = 80
-            response_text = response.text
-            self.results_box3.insert(tk.END, "\nHTTP Response Text:\n")
-            for i in range(0, len(response_text), chunk_size):
-                self.results_box3.insert(tk.END, response_text[i:i+chunk_size])
+        text_widget = tk.Text(http_data_window, wrap="word", font=("Arial", 12), bg="#000000", fg="#ffffff")
+        text_widget.insert(tk.END, f"HTTP Request URL: {response.url}\n")
+        text_widget.insert(tk.END, f"HTTP Response Code: {response.status_code}\n\n")
 
-        except Exception as e:
-            pass  # do nothing
+        headers_text = str(response.headers)
+        text_widget.insert(tk.END, "HTTP Headers:\n")
+        text_widget.insert(tk.END, headers_text + "\n\n")
 
+        response_text = response.text
+        text_widget.insert(tk.END, "HTTP Response Text:\n")
+        text_widget.insert(tk.END, response_text)
+
+        text_widget.config(state=tk.DISABLED)  # Make the text widget read-only
+        text_widget.pack(expand=True, fill="both")
 
     def open_web_browser(self, url):
         webview.create_window('Pantheon Integrated Live Feed', url)

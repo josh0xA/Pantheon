@@ -3,3 +3,4 @@ tkintermapview
 requests
 pywebview
 ip2geotools
+pycountry

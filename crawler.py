@@ -25,5 +25,3 @@ class PantheonWebcam:
 
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
                 executor.map(fetch_page, range(1, cfg.PANTHEON_DEFAULT_COUNT))
-
-            cfg.webcams_found = list(dict.fromkeys(cfg.webcams_found))

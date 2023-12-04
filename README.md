@@ -25,6 +25,7 @@ Pantheon is a GUI application that allows users to display information regarding
 
 (Enter) on a selected IP:Port to establish a Pantheon webview of the camera. (Use this at your own risk) <br/>
 (Left-click) on a selected IP:Port to view the geolocation of the camera. <br/>
+(Right-click) on a selected IP:Port to view the HTTP data of the camera. <br/>
 Adjust the map as you please to see the markers. 
 
 ## Ethical Notice
