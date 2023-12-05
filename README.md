@@ -14,7 +14,7 @@ Pantheon is a GUI application that allows users to display information regarding
 - Note: I will later add a GUI installer to make it fully indepenent of a CLI
 
 ### Ubuntu Installation 
-- First, complete steps 1,2 listed above. <br/>
+- First, complete steps 1,2, and 3 listed above. <br/>
 - ``chmod +x distros/ubuntu_install.sh``
 - ``./distros/ubuntu_install.sh``
 
