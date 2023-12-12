@@ -36,7 +36,7 @@ Adjust the map as you please to see the markers. <br/>
 ## Ethical Notice
 The developer of this program, Josh Schiavone, is not resposible for misuse of this data gathering tool. Pantheon simply provides information
 that can be indexed by any modern search engine. Do not try to establish unauthorized access to live feeds that are password protected - that is illegal. Furthermore, if you do choose to use Pantheon to view a live-feed, do so at your own risk. Pantheon was developed for 
-education purposes only. For further information, please visit: https://joshschiavone.com/panth_info/panth_ethical_notice.html
+educational purposes only. For further information, please visit: https://joshschiavone.com/panth_info/panth_ethical_notice.html
 
 ## Licence
 MIT License<br/>
