@@ -4,7 +4,7 @@
 </p>
 
 ## About Pantheon 
-Pantheon is a GUI application that allows users to display information regarding cameras in many different countries as well as a live-feed for non-protected cameras. 
+Pantheon is a GUI application that allows users to display information regarding network cameras in various countries as well as a live-feed for non-protected cameras. Pantheon allows users to execute an <strong>Insecam</strong> crawler or Pantheon's <strong>Dork Query</strong> crawling algorithm. I will attempt to not be a small-minded security researcher and actually deploy efficient searching mechanisms theoretically, and actually applicable crawling algorithms by utilizing process threading; for both searching mechanisms. 
 
 ## Installation 
 1. ``git clone https://github.com/josh0xA/Pantheon.git``
