@@ -255,7 +255,8 @@ class Pantheon:
                 self.results_box.itemconfig(tk.END, {"fg": "#18E63B"})
             self.loading_label.destroy()
             country_name = self.country_code_to_name(country)
-            self.results_label.config(text=f"Webcams Found: ({PantheonConfiguration.num_webcams_found}) in country: {country_name}\nCrawling Verbosity: {PantheonConfiguration.PANTHEON_DEFAULT_COUNT}")
+            self.results_label.config(
+                text=f"Webcams Found: ({PantheonConfiguration.num_webcams_found}) in country: {country_name}\nCrawling Verbosity: {PantheonConfiguration.PANTHEON_DEFAULT_COUNT}")
 
         self.clear_results()
         self.clear_results2()

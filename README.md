@@ -13,10 +13,13 @@ Pantheon is a GUI application that allows users to display information regarding
 4. ``python pantheon.py``
 - Note: I will later add a GUI installer to make it fully indepenent of a CLI
 
-### Ubuntu Installation 
+### Windows
+- You can just follow the steps above or download the official package here: https://joshschiavone.com/pantheon-software/PantheonWin32.zip
+
+### Ubuntu & Debian Installation 
 - First, complete steps 1,2 listed above. <br/>
 - ``chmod +x distros/ubuntu_install.sh``
-- ``./distros/ubuntu_install.sh``
+- ``./distros/ubuntu_deb.sh``
 
 ## Usage 
 <p align="center">
@@ -27,7 +30,6 @@ Pantheon is a GUI application that allows users to display information regarding
 
 (Left-click) on a selected IP:Port to view the geolocation of the camera. <br/>
 (Right-click) on a selected IP:Port to view the HTTP data of the camera. <br/>
-Adjust the map as you please to see the markers. 
 
 Adjust the map as you please to see the markers. <br/>
 
