@@ -15,6 +15,8 @@ Pantheon is a GUI application that allows users to display information regarding
 
 ### Windows
 - You can just follow the steps above or download the official package <a href="https://joshschiavone.com/pantheon-software/PantheonWin32.zip">here</a>.
+- Note, the PE binary of Pantheon was put together using pyinstaller, so Windows Defender might get a bit upset. 
+
 
 ### Ubuntu & Debian Installation 
 - First, complete steps 1, 2 and 3 listed above. <br/>
