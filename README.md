@@ -14,7 +14,7 @@ Pantheon is a GUI application that allows users to display information regarding
 - Note: I will later add a GUI installer to make it fully indepenent of a CLI
 
 ### Windows
-- You can just follow the steps above or download the official package here: https://joshschiavone.com/pantheon-software/PantheonWin32.zip
+- You can just follow the steps above or download the official package <a href="https://joshschiavone.com/pantheon-software/PantheonWin32.zip"> here </a>.
 
 ### Ubuntu & Debian Installation 
 - First, complete steps 1, 2 and 3 listed above. <br/>
