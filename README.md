@@ -17,7 +17,7 @@ Pantheon allows users to execute an <strong>API</strong> crawler. There was orig
 - Note: I will later add a GUI installer to make it fully indepenent of a CLI
 
 ### Windows
-- You can just follow the steps above or download the official package <a href="https://joshschiavone.com/">here</a>.
+- You can just follow the steps above or download the official package <a href="https://joshschiavone.com/" target="_blank">here</a>.
 - Note, the PE binary of Pantheon was put together using pyinstaller, so Windows Defender might get a bit upset. 
 
 ### Ubuntu
