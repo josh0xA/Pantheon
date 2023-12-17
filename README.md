@@ -20,11 +20,18 @@ Pantheon allows users to execute an <strong>API</strong> crawler. There was orig
 - You can just follow the steps above or download the official package <a href="https://joshschiavone.com/pantheon-software/PantheonWin32.zip">here</a>.
 - Note, the PE binary of Pantheon was put together using pyinstaller, so Windows Defender might get a bit upset. 
 
-
-### Ubuntu & Debian Installation 
+### Ubuntu
 - First, complete steps 1, 2 and 3 listed above. <br/>
-- ``chmod +x distros/ubuntu_deb.sh``
-- ``./distros/ubuntu_deb.sh``
+- ``chmod +x distros/ubuntu_install.sh``
+- ``./distros/ubuntu_install.sh``
+
+### Debian and Kali Linux
+- First, complete steps 1, 2 and 3 listed above. <br/>
+- ``chmod +x distros/debian-kali_install.sh``
+- ``./distros/debian-kali_install.sh``
+
+### MacOS
+- The regular installation steps above should suffice. If not, open up an issue. 
 
 ## Usage 
 <p align="center">
