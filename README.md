@@ -17,7 +17,7 @@ Pantheon is a GUI application that allows users to display information regarding
 - You can just follow the steps above or download the official package here: https://joshschiavone.com/pantheon-software/PantheonWin32.zip
 
 ### Ubuntu & Debian Installation 
-- First, complete steps 1,2 and 3 listed above. <br/>
+- First, complete steps 1, 2 and 3 listed above. <br/>
 - ``chmod +x distros/ubuntu_install.sh``
 - ``./distros/ubuntu_deb.sh``
 
