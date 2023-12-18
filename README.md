@@ -12,8 +12,8 @@ Pantheon allows users to execute an <strong>API</strong> crawler. There was orig
 ## Installation 
 1. ``git clone https://github.com/josh0xA/Pantheon.git``
 2. ``cd Pantheon``
-3. ``pip install -r requirements.txt``
-4. ``python pantheon.py``
+3. ``pip3 install -r requirements.txt``<br/>
+Execution: ``python3 pantheon.py``
 - Note: I will later add a GUI installer to make it fully indepenent of a CLI
 
 ### Windows
