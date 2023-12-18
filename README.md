@@ -35,7 +35,7 @@ Pantheon allows users to execute an <strong>API</strong> crawler. There was orig
 
 ## Usage 
 <p align="center">
-  <img src="/imgs/pantheon_example1.PNG">
+  <img src="/imgs/pantheon_second_example.PNG">
 </p>
 
 (Enter) on a selected IP:Port to establish a Pantheon webview of the camera. (Use this at your own risk) <br/>
