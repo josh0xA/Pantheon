@@ -4,7 +4,7 @@
 </p>
 
 ## About Pantheon 
-Pantheon is a GUI application that allows users to display information regarding network cameras in various countries as well as a live-feed for non-protected cameras. 
+Pantheon is a GUI application that allows users to display information regarding network cameras in various countries as well as an integrated live-feed for non-protected cameras. 
 
 ### Functionalities 
 Pantheon allows users to execute an <strong>API</strong> crawler. There was original functionality without the use of any API's (like Insecam), but Google TOS kept getting in the way of the original scraping mechanism. 
