@@ -8,3 +8,5 @@ class PantheonConfiguration:
     webcams_found = []
     num_webcams_found = 0
     just_ip_addresses = []
+
+    proxy_api = "https://api.proxyscrape.com/v2/?request=displayproxies&protocol=http&timeout=10000&country=all&ssl=all&anonymity=elite"

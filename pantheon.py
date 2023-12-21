@@ -15,12 +15,13 @@ import pycountry
 
 
 __author__ = "Josh Schiavone"
-__version__ = "1.0"
+__version__ = "1.1"
 
 class Pantheon:
     def __init__(self, root):
         self.setup_window(root)
         self.create_widgets(root)
+        self.markers = []
 
     def setup_window(self, root):
         width, height = 1261, 807
@@ -141,6 +142,8 @@ class Pantheon:
         )
         self.results_label.place(x=80, y=160)
 
+        clear_markers_button = tk.Button(root, text="Clear Markers", command=self.clear_markers, bg="#000000", fg="red", font=("Arial", 8, "bold"))
+        clear_markers_button.place(x=1080, y=440, width=100, height=25)
     def get_platform_title(self):
         if sys.platform == "win32":
             return f"Pantheon: Developed by {__author__} - Ver {__version__} - Pantheon user: Windows"
@@ -249,9 +252,9 @@ class Pantheon:
                 concurrent.futures.wait([future])  
             # remove duplicates
             PantheonConfiguration.webcams_found = list(dict.fromkeys(PantheonConfiguration.webcams_found))            
-            for webcam in PantheonConfiguration.webcams_found:
+            for idx, webcam in enumerate(PantheonConfiguration.webcams_found, start=1):
                 PantheonConfiguration.num_webcams_found += 1
-                self.results_box.insert(tk.END, webcam)
+                self.results_box.insert(tk.END, f"{idx}. {webcam}")
                 self.results_box.itemconfig(tk.END, {"fg": "#18E63B"})
             self.loading_label.destroy()
             country_name = self.country_code_to_name(country)
@@ -268,11 +271,18 @@ class Pantheon:
         self.clear_results2()
         try:
             selected_index = self.results_box.curselection()[0]
-            selected_ip = self.results_box.get(selected_index)
-            selected_ip = re.sub(r'http://|https://|:\d+', '', selected_ip)
-        except IndexError: pass # this handles the case where the user clicks an empty listbox
+            selected_item = self.results_box.get(selected_index)
+
+            # Use regular expressions to extract the URL
+            match = re.search(r'https?://([^:/\s]+)', selected_item)
+            if match:
+                selected_url = match.group(1)
+            else:
+                selected_url = selected_item
+        except IndexError:
+            pass # Handle the case where the user clicks an empty listbox
         try: 
-            ip_location = IPGeolocation.get_location(selected_ip)
+            ip_location = IPGeolocation.get_location(selected_url)
             if ip_location:
                 self.results_box2.insert(tk.END, f"GeoDump for camera #{(selected_index + 1)}")
                 self.results_box2.insert(tk.END, f"IP: {ip_location['ip']}")
@@ -283,18 +293,31 @@ class Pantheon:
                 self.results_box2.insert(tk.END, f"Longitude: {ip_location['longitude']}")
                 self.results_box2.insert(tk.END, "---------------------------")
             
-                self.map_widget.set_marker(ip_location['latitude'], ip_location['longitude'], 
+                self.markers.append(self.map_widget.set_marker(ip_location['latitude'], ip_location['longitude'], 
                                         text=f"{ip_location['city']}, {ip_location['country']}\n({ip_location['ip']})",
-                                        font=("Arial", 9), text_color="red", image_zoom_visibility=(0, float('inf')))
+                                        font=("Arial", 9), text_color="red", image_zoom_visibility=(0, float('inf'))))
         except UnboundLocalError: pass # this is fine
 
+    def get_markers(self):
+        return self.markers
+
+    def clear_markers(self):
+        for marker in self.get_markers():
+            self.map_widget.delete(marker)
+        self.get_markers().clear()
     
     def get_http_data(self, event):
         try:
             selected_index = self.results_box.curselection()[0]
-            selected_url = self.results_box.get(selected_index)
-            response = requests.get(selected_url)
+            selected_item = self.results_box.get(selected_index)
 
+            match = re.search(r'https?://\S+', selected_item)
+            if match:
+                selected_url = match.group(0)
+            else:
+                selected_url = selected_item
+
+            response = requests.get(selected_url)
             self.show_http_data_window(response)
         except Exception as e: pass
 
@@ -324,8 +347,15 @@ class Pantheon:
 
     def browser_load_url(self, event):
         selected_index = self.results_box.curselection()[0]
-        selected_url = self.results_box.get(selected_index)
-        
+        selected_item = self.results_box.get(selected_index)
+
+        # Use regular expressions to extract the URL
+        match = re.search(r'https?://\S+', selected_item)
+        if match:
+            selected_url = match.group(0)
+        else:
+            selected_url = selected_item
+                
         self.open_web_browser(selected_url)
 
 if __name__ == "__main__":

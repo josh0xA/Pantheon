@@ -6,6 +6,26 @@ from config import PantheonConfiguration
 from headers.agents import Agents
 import random
 
+class PantheonProxy(object):
+    def init(self, proxy, use_proxy):
+        self.proxy = proxy
+        self.use_proxy = use_proxy
+
+    def assign_proxy(self):
+        proxy_req = requests.get(PantheonConfiguration.proxy_api)
+        if proxy_req.status_code == PantheonConfiguration.PANTHEON_REQUESTS_SUCCESS_CODE:
+            for line in proxy_req.text.splitlines():
+                if line:
+                    proxy = line.split(':')
+                    self.proxy["http"] = "http://" + proxy[0] + ':' + proxy[1]
+        else: pass
+
+    def get_proxy(self):
+        return self.proxy["http"]
+
+    def get_proxy_dict(self):
+        return self.proxy
+
 class PantheonWebcam:
     @staticmethod
     def crawl(country):
