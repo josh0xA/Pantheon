@@ -72,7 +72,9 @@ class Pantheon:
 
         self.setup_results_box()
         if sys.platform == "darwin":
-            self.results_box.bind("<Double-Button-1>", self.get_http_data)
+            self.results_box.bind("<Control-Button-1>", self.get_http_data)
+            self.results_box.bind("<Return>", self.browser_load_url)
+            self.results_box.bind("<<ListboxSelect>>", self.add_ip_location)
         else:
             self.results_box.bind("<Return>", self.browser_load_url)
             self.results_box.bind("<<ListboxSelect>>", self.add_ip_location)
@@ -399,8 +401,8 @@ class Pantheon:
 
     def write_file_handler(self):
         from datetime import datetime
-
-        logfilename = f'{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.pantheon_log'
+        
+        logfilename = f'{datetime.now().strftime("PantheonLog__%Y-%m-%d_%H:%M:%S")}.pantheon_log'
     
         PantheonLogger(logfilename).log_info("Do not modify this file directly if you want to load it into Pantheon.")
         PantheonLogger(logfilename).log_text(f"Pantheon Crawl Results ({os.path.abspath(logfilename)})")
