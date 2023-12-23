@@ -1,18 +1,49 @@
+'''
+MIT License
+
+Copyright (c) 2021 Josh Schiavone
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+'''
+
 import sys
+import os
 sys.dont_write_bytecode = True
+
 import tkinter as tk
 import tkintermapview 
 import tkinter.font as tkFont
-from crawler import PantheonWebcam
-from geo import IPGeolocation
-from config import PantheonConfiguration
+from tkinter import filedialog as fd
+from tkinter import messagebox 
 import threading 
 import webview, webbrowser
+
 import concurrent.futures
 import re
+
 import requests
 import pycountry
 
+from src.crawler import PantheonWebcam
+from src.geo import IPGeolocation
+from src.config import PantheonConfiguration
+from src.logger import PantheonLogger
 
 __author__ = "Josh Schiavone"
 __version__ = "1.1"
@@ -22,6 +53,9 @@ class Pantheon:
         self.setup_window(root)
         self.create_widgets(root)
         self.markers = []
+
+        self.auto_log_data = []
+        self.ip_data = []
 
     def setup_window(self, root):
         width, height = 1261, 807
@@ -37,9 +71,12 @@ class Pantheon:
         self.results_box2 = tk.Listbox(root, selectmode=tk.SINGLE)
 
         self.setup_results_box()
-        self.results_box.bind("<Return>", self.browser_load_url)
-        self.results_box.bind("<<ListboxSelect>>", self.add_ip_location)
-        self.results_box.bind("<Button-3>", self.get_http_data)
+        if sys.platform == "darwin":
+            self.results_box.bind("<Double-Button-1>", self.get_http_data)
+        else:
+            self.results_box.bind("<Return>", self.browser_load_url)
+            self.results_box.bind("<<ListboxSelect>>", self.add_ip_location)
+            self.results_box.bind("<Button-3>", self.get_http_data)
 
         country_buttons = self.create_country_widgets(root)
         self.create_country_buttons(country_buttons)
@@ -71,6 +108,15 @@ class Pantheon:
         http_data_label.place(x=650, y=440)
         self.setup_labels(root)
 
+        menubar = tk.Menu(root)
+        filemenu = tk.Menu(menubar, tearoff=0, fg="white", bg="black")
+        filemenu.add_command(label="Save Pantheon Crawl", command=self.write_file_handler)
+        filemenu.add_command(label="Load Pantheon Crawl", command=self.load_logfile)
+        filemenu.add_separator()
+        filemenu.add_command(label="Exit", command=root.quit)
+        menubar.add_cascade(label="Pantheon File Controller", menu=filemenu)
+
+        root.config(menu=menubar)
 
     def setup_results_box(self):
         self.results_box.pack(fill=tk.BOTH, expand=True)
@@ -95,6 +141,7 @@ class Pantheon:
         self.results_box2["font"] = ft
         self.results_box2["fg"] = "#9f9f9f"
         self.results_box2.place(x=650, y=180, width=530, height=250)
+
 
     def create_country_buttons(self, country_buttons):
         x, y, row_height = 100, 5, 30
@@ -144,6 +191,8 @@ class Pantheon:
 
         clear_markers_button = tk.Button(root, text="Clear Markers", command=self.clear_markers, bg="#000000", fg="red", font=("Arial", 8, "bold"))
         clear_markers_button.place(x=1080, y=440, width=100, height=25)
+
+
     def get_platform_title(self):
         if sys.platform == "win32":
             return f"Pantheon: Developed by {__author__} - Ver {__version__} - Pantheon user: Windows"
@@ -199,6 +248,10 @@ class Pantheon:
         github_url = "https://github.com/josh0xA/Pantheon"
         webbrowser.open_new_tab(github_url)
 
+    def open_github_no_event(self):
+        github_url = "https://github.com/josh0xA/Pantheon"
+        webbrowser.open_new_tab(github_url)
+
     def open_legal(self, event):
         legal_url = "https://joshschiavone.com/panth_info/panth_ethical_notice.html"
         webbrowser.open_new_tab(legal_url)
@@ -251,14 +304,15 @@ class Pantheon:
                 future.result()  
                 concurrent.futures.wait([future])  
             # remove duplicates
-            PantheonConfiguration.webcams_found = list(dict.fromkeys(PantheonConfiguration.webcams_found))            
+            PantheonConfiguration.webcams_found = list(dict.fromkeys(PantheonConfiguration.webcams_found)) 
+            self.auto_log_data = PantheonConfiguration.webcams_found          
             for idx, webcam in enumerate(PantheonConfiguration.webcams_found, start=1):
                 PantheonConfiguration.num_webcams_found += 1
                 self.results_box.insert(tk.END, f"{idx}. {webcam}")
                 self.results_box.itemconfig(tk.END, {"fg": "#18E63B"})
             self.loading_label.destroy()
             country_name = self.country_code_to_name(country)
-            self.results_label.config(
+            self.results_label.config(fg="red",
                 text=f"Webcams Found: ({PantheonConfiguration.num_webcams_found}) in country: {country_name}\nCrawling Verbosity: {PantheonConfiguration.PANTHEON_DEFAULT_COUNT}")
 
         self.clear_results()
@@ -296,6 +350,7 @@ class Pantheon:
                 self.markers.append(self.map_widget.set_marker(ip_location['latitude'], ip_location['longitude'], 
                                         text=f"{ip_location['city']}, {ip_location['country']}\n({ip_location['ip']})",
                                         font=("Arial", 9), text_color="red", image_zoom_visibility=(0, float('inf'))))
+
         except UnboundLocalError: pass # this is fine
 
     def get_markers(self):
@@ -305,7 +360,7 @@ class Pantheon:
         for marker in self.get_markers():
             self.map_widget.delete(marker)
         self.get_markers().clear()
-    
+
     def get_http_data(self, event):
         try:
             selected_index = self.results_box.curselection()[0]
@@ -341,6 +396,45 @@ class Pantheon:
         text_widget.config(state=tk.DISABLED)  # Make the text widget read-only
         text_widget.pack(expand=True, fill="both")
 
+
+    def write_file_handler(self):
+        from datetime import datetime
+
+        logfilename = f'{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.pantheon_log'
+    
+        PantheonLogger(logfilename).log_info("Do not modify this file directly if you want to load it into Pantheon.")
+        PantheonLogger(logfilename).log_text(f"Pantheon Crawl Results ({os.path.abspath(logfilename)})")
+        PantheonLogger(logfilename).log_text(self.results_label.cget("text"))
+        PantheonLogger(logfilename).log(self.results_box.get(0, tk.END))
+        messagebox.showinfo("Log File Created Successfully", "Log file saved to: " + os.path.abspath(logfilename))
+
+
+    def load_logfile_handler(self, filename):
+        with open(filename, 'r') as f:
+            lines = f.readlines()
+            self.results_label.config(fg="yellow", text=f"From Log File: {filename.split('/')[-1]}")
+            lines = lines[4:]
+            for line in lines:
+                self.results_box.insert(tk.END, line)
+                self.results_box.itemconfig(tk.END, {"fg": "#18E63B"})
+        f.close()
+
+    def load_logfile(self):
+        filetypes = (
+            ('Pantheon Log Files', '*.pantheon_log'),
+        )
+
+        filename = fd.askopenfilename(
+            title='Open a Pantheon Log File',
+            initialdir='/',
+            filetypes=filetypes)
+        
+        if filename:
+            self.clear_results()
+            self.clear_results2()
+            self.load_logfile_handler(filename)
+
+
     def open_web_browser(self, url):
         webview.create_window('Pantheon Integrated Live Feed', url)
         webview.start(private_mode=True)
@@ -357,6 +451,7 @@ class Pantheon:
             selected_url = selected_item
                 
         self.open_web_browser(selected_url)
+
 
 if __name__ == "__main__":
     root = tk.Tk()
