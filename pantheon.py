@@ -373,8 +373,12 @@ class Pantheon:
                 selected_url = match.group(0)
             else:
                 selected_url = selected_item
-
-            response = requests.get(selected_url)
+            from headers.agents import Agents
+            import random
+            user_agent = {
+                'User-Agent': random.choice(Agents.useragent)
+            }
+            response = requests.get(selected_url, headers=user_agent)
             self.show_http_data_window(response)
         except Exception as e: pass
 
@@ -384,6 +388,7 @@ class Pantheon:
         http_data_window.geometry("800x600")
 
         text_widget = tk.Text(http_data_window, wrap="word", font=("Arial", 12), bg="#000000", fg="#ffffff")
+        text_widget.insert(tk.END, f"Note: Fetching w/ Random User-Agent: \n\t{response.request.headers['User-Agent']}\n\n")
         text_widget.insert(tk.END, f"HTTP Request URL: {response.url}\n")
         text_widget.insert(tk.END, f"HTTP Response Code: {response.status_code}\n\n")
 
@@ -402,8 +407,12 @@ class Pantheon:
     def write_file_handler(self):
         from datetime import datetime
         
-        logfilename = f'{datetime.now().strftime("PantheonLog__%Y-%m-%d_%H:%M:%S")}.pantheon_log'
-    
+        logfilename = f'{datetime.now().strftime("PantheonLog__%Y-%m-%d_%H--%M--%S")}.pantheon_log'
+
+        if self.results_box.size() == 0:
+            messagebox.showerror("Error", "No crawling data to save.")
+            return
+
         PantheonLogger(logfilename).log_info("Do not modify this file directly if you want to load it into Pantheon.")
         PantheonLogger(logfilename).log_text(f"Pantheon Crawl Results ({os.path.abspath(logfilename)})")
         PantheonLogger(logfilename).log_text(self.results_label.cget("text"))
