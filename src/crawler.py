@@ -31,19 +31,18 @@ from src.config import PantheonConfiguration
 import random
 
 class PantheonProxy(object):
-    def init(self, proxy, use_proxy):
+    def __init__(self):
         self.proxy = {}
-        self.use_proxy = use_proxy
 
     def assign_proxy(self):
-        proxy_req = requests.get(PantheonConfiguration.proxy_api)
-        if proxy_req.status_code == PantheonConfiguration.PANTHEON_REQUESTS_SUCCESS_CODE:
-            for line in proxy_req.text.splitlines():
+        req = requests.get(PantheonConfiguration.proxy_api)
+        if req.status_code == PantheonConfiguration.PANTHEON_REQUESTS_SUCCESS_CODE:
+            for line in req.text.splitlines():
                 if line:
                     proxy = line.split(':')
                     self.proxy["http"] = "http://" + proxy[0] + ':' + proxy[1]
         else: pass
-
+    
     def get_proxy(self):
         return self.proxy["http"]
 
@@ -69,3 +68,4 @@ class PantheonWebcam:
 
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
                 executor.map(fetch_page, range(1, cfg.PANTHEON_DEFAULT_COUNT))
+                

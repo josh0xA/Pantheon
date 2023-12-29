@@ -39,14 +39,20 @@ import re
 
 import requests
 import pycountry
+import urllib3
 
 from src.crawler import PantheonWebcam
-from src.geo import IPGeolocation
 from src.config import PantheonConfiguration
 from src.logger import PantheonLogger
 
+
+from src.geo import *
+
+from headers.agents import Agents
+import random
+
 __author__ = "Josh Schiavone"
-__version__ = "1.1"
+__version__ = "1.2"
 
 class Pantheon:
     def __init__(self, root):
@@ -84,6 +90,8 @@ class Pantheon:
         self.create_country_buttons(country_buttons)
 
         self.map_widget = tkintermapview.TkinterMapView(root, width=100, height=100, corner_radius=0)
+        self.map_widget.set_tile_server("https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", max_zoom=20)  
+
         self.map_widget.place(x=650, y=470, width=530, height=300)
         self.map_widget.set_zoom(0)
 
@@ -117,6 +125,12 @@ class Pantheon:
         filemenu.add_separator()
         filemenu.add_command(label="Exit", command=root.quit)
         menubar.add_cascade(label="Pantheon File Controller", menu=filemenu)
+
+        helpmenu = tk.Menu(menubar, tearoff=0, fg="white", bg="black")
+        helpmenu.add_command(label="About", command=self.open_github_no_event)
+        helpmenu.add_command(label="Legal", command=self.open_legal_no_event)
+        helpmenu.add_command(label="Commands", command=self.command_list)
+        menubar.add_cascade(label="Pantheon Help", menu=helpmenu)
 
         root.config(menu=menubar)
 
@@ -258,6 +272,10 @@ class Pantheon:
         legal_url = "https://joshschiavone.com/panth_info/panth_ethical_notice.html"
         webbrowser.open_new_tab(legal_url)
 
+    def open_legal_no_event(self):
+        legal_url = "https://joshschiavone.com/panth_info/panth_ethical_notice.html"
+        webbrowser.open_new_tab(legal_url)
+
     def browser_load_url(self, event):
         selected_index = self.results_box.curselection()[0]
         selected_url = self.results_box.get(selected_index)
@@ -322,14 +340,13 @@ class Pantheon:
         self.results_label.config(text="")
 
         threading.Thread(target=crawl_and_display).start()
-    # add ip location to resultsbox2 on double click
+
     def add_ip_location(self, event):
         self.clear_results2()
         try:
             selected_index = self.results_box.curselection()[0]
             selected_item = self.results_box.get(selected_index)
 
-            # Use regular expressions to extract the URL
             match = re.search(r'https?://([^:/\s]+)', selected_item)
             if match:
                 selected_url = match.group(1)
@@ -338,22 +355,44 @@ class Pantheon:
         except IndexError:
             pass # Handle the case where the user clicks an empty listbox
         try: 
-            ip_location = IPGeolocation.get_location(selected_url)
-            if ip_location:
-                self.results_box2.insert(tk.END, f"GeoDump for camera #{(selected_index + 1)}")
-                self.results_box2.insert(tk.END, f"IP: {ip_location['ip']}")
-                self.results_box2.insert(tk.END, f"City: {ip_location['city']}")
-                self.results_box2.insert(tk.END, f"Region: {ip_location['region']}")
-                self.results_box2.insert(tk.END, f"Country: {ip_location['country']}")
-                self.results_box2.insert(tk.END, f"Latitude: {ip_location['latitude']}")
-                self.results_box2.insert(tk.END, f"Longitude: {ip_location['longitude']}")
-                self.results_box2.insert(tk.END, "---------------------------")
-            
-                self.markers.append(self.map_widget.set_marker(ip_location['latitude'], ip_location['longitude'], 
-                                        text=f"{ip_location['city']}, {ip_location['country']}\n({ip_location['ip']})",
-                                        font=("Arial", 9), text_color="red", image_zoom_visibility=(0, float('inf'))))
+            import ipapi
+            ip_location = ipapi.location(ip=selected_url)
+            try:
+                if ip_location:
+                    self.results_box2.insert(tk.END, f"GeoDump for camera #{(selected_index + 1)}")
+                    self.results_box2.insert(tk.END, "*" * 45)
+                    self.results_box2.insert(tk.END, f"IP: {selected_url}")
+                    self.results_box2.insert(tk.END, f"City: {ip_location.get('city')}")
+                    self.results_box2.insert(tk.END, f"Region: {ip_location.get('region')}")
+                    self.results_box2.insert(tk.END, f"Country: {ip_location.get('country_name')}")
+                    self.results_box2.insert(tk.END, f"Latitude: {ip_location.get('latitude')}")
+                    self.results_box2.insert(tk.END, f"Longitude: {ip_location.get('longitude')}")
+                    self.results_box2.insert(tk.END, f"Postal: {ip_location.get('postal')}")
+                    self.results_box2.insert(tk.END, f"Organization/ISP: {ip_location.get('org')}")
 
-        except UnboundLocalError: pass # this is fine
+                    self.markers.append(self.map_widget.set_marker(ip_location['latitude'], ip_location['longitude'], 
+                                            text=f"{ip_location['city']}, {ip_location['country']}\n({ip_location['ip']})",
+                                            font=("Arial", 9), text_color="blue", image_zoom_visibility=(0, float('inf'))))
+            except UnboundLocalError: pass # this is fine
+
+        except ImportError:
+            ip_location = IPGeolocation.get_location_ip2(selected_url)
+            try:
+                if ip_location:
+                    self.results_box2.insert(tk.END, f"GeoDump for camera #{(selected_index + 1)}")
+                    self.results_box2.insert(tk.END, "*" * 45)
+                    self.results_box2.insert(tk.END, f"IP: {ip_location['ip']}")
+                    self.results_box2.insert(tk.END, f"City: {ip_location['city']}")
+                    self.results_box2.insert(tk.END, f"Region: {ip_location['region']}")
+                    self.results_box2.insert(tk.END, f"Country: {ip_location['country']}")
+                    self.results_box2.insert(tk.END, f"Latitude: {ip_location['latitude']}")
+                    self.results_box2.insert(tk.END, f"Longitude: {ip_location['longitude']}")
+
+                    self.markers.append(self.map_widget.set_marker(ip_location['latitude'], ip_location['longitude'], 
+                                            text=f"{ip_location['city']}, {ip_location['country']}\n({ip_location['ip']})",
+                                            font=("Arial", 9), text_color="blue", image_zoom_visibility=(0, float('inf'))))
+
+            except UnboundLocalError: pass # this is fine
 
     def get_markers(self):
         return self.markers
@@ -373,8 +412,7 @@ class Pantheon:
                 selected_url = match.group(0)
             else:
                 selected_url = selected_item
-            from headers.agents import Agents
-            import random
+
             user_agent = {
                 'User-Agent': random.choice(Agents.useragent)
             }
@@ -387,22 +425,43 @@ class Pantheon:
         http_data_window.title(f"HTTP Data for: {response.url}")
         http_data_window.geometry("800x600")
 
-        text_widget = tk.Text(http_data_window, wrap="word", font=("Arial", 12), bg="#000000", fg="#ffffff")
-        text_widget.insert(tk.END, f"Note: Fetching w/ Random User-Agent: \n\t{response.request.headers['User-Agent']}\n\n")
-        text_widget.insert(tk.END, f"HTTP Request URL: {response.url}\n")
-        text_widget.insert(tk.END, f"HTTP Response Code: {response.status_code}\n\n")
+        search_var = tk.StringVar()
+        search_entry = tk.Entry(http_data_window, textvariable=search_var)
+        search_entry.pack(side=tk.TOP, fill=tk.X)
+        search_var.trace_add("write", lambda *args: self.filter_http_data(response, search_var.get()))
+
+        self.text_widget = tk.Text(http_data_window, wrap="word", font=("Arial", 12), bg="#000000", fg="#ffffff")
+        self.text_widget.insert(tk.END, f"Note: Fetching w/ Random User-Agent: \n\t{response.request.headers['User-Agent']}\n\n")
+        self.text_widget.insert(tk.END, f"HTTP Request URL: {response.url}\n")
+        self.text_widget.insert(tk.END, f"HTTP Response Code: {response.status_code}\n\n")
 
         headers_text = str(response.headers)
-        text_widget.insert(tk.END, "HTTP Headers:\n")
-        text_widget.insert(tk.END, headers_text + "\n\n")
+        self.text_widget.insert(tk.END, "HTTP Headers:\n")
+        self.text_widget.insert(tk.END, headers_text + "\n\n")
 
         response_text = response.text
-        text_widget.insert(tk.END, "HTTP Response Text:\n")
-        text_widget.insert(tk.END, response_text)
+        self.text_widget.insert(tk.END, "HTTP Response Text:\n")
+        self.text_widget.insert(tk.END, response_text)
 
-        text_widget.config(state=tk.DISABLED)  # Make the text widget read-only
-        text_widget.pack(expand=True, fill="both")
+        self.text_widget.config(state=tk.DISABLED) 
+        self.text_widget.pack(expand=True, fill="both")
 
+    def filter_http_data(self, response, search_query):
+        start_pos = "1.0"
+        for tag in self.text_widget.tag_names():
+            self.text_widget.tag_remove(tag, "1.0", "end")
+            countVar = tk.StringVar()
+        try:
+            while start_pos != "end":
+                pos = self.text_widget.search(search_query, start_pos, stopindex="end", 
+                count=countVar, nocase=True)
+                start_pos =  "%s + %sc" % (pos, int(countVar.get()) + 1)
+                self.text_widget.tag_configure("search", background="green")
+                self.text_widget.tag_add("search", pos, "%s + %sc" % (pos, countVar.get()))
+        except tk.TclError:
+            pass
+        except ValueError:
+            pass
 
     def write_file_handler(self):
         from datetime import datetime
@@ -445,6 +504,26 @@ class Pantheon:
             self.clear_results2()
             self.load_logfile_handler(filename)
 
+    def command_list(self):
+        # new tk window
+        command_window = tk.Toplevel(root)
+        command_window.title("Pantheon Commands")
+        command_window.geometry("500x500")
+
+        command_list = tk.Text(command_window, wrap="word", font=("Arial", 12), bg="#000000", fg="#ffffff")
+        command_list.insert(tk.END, "Pantheon Commands\n")
+        command_list.insert(tk.END, "*" * 45)
+        command_list.insert(tk.END, "\n\n")
+        command_list.insert(tk.END, f"View Feed: {PantheonConfiguration.controls['view-feed']}\n\n")
+        command_list.insert(tk.END, f"View HTTP Data: {PantheonConfiguration.controls['view-http']}\n\n")
+        command_list.insert(tk.END, f"Adjust Verbosity: {PantheonConfiguration.controls['verbosity']}\n\n")
+        command_list.insert(tk.END, f"Save Crawl: {PantheonConfiguration.controls['save-crawl']}\n\n")
+        command_list.insert(tk.END, f"Load Crawl: {PantheonConfiguration.controls['load-crawl']}\n\n")
+        command_list.insert(tk.END, f"Search HTTP Data: {PantheonConfiguration.controls['search-http']}\n\n")
+
+        command_list.config(state=tk.DISABLED)
+        command_list.pack(expand=True, fill="both")
+
 
     def open_web_browser(self, url):
         webview.create_window('Pantheon Integrated Live Feed', url)
@@ -454,7 +533,6 @@ class Pantheon:
         selected_index = self.results_box.curselection()[0]
         selected_item = self.results_box.get(selected_index)
 
-        # Use regular expressions to extract the URL
         match = re.search(r'https?://\S+', selected_item)
         if match:
             selected_url = match.group(0)

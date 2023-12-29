@@ -32,7 +32,18 @@ class PantheonConfiguration:
     PANTHEON_PROXY = False
     PANTHEON_DEFAULT_COUNT = 0
     webcams_found = []
+    intel_map_webcams_found = []
+    intel_markers = []
     num_webcams_found = 0
     just_ip_addresses = []
 
     proxy_api = "https://api.proxyscrape.com/v2/?request=displayproxies&protocol=http&timeout=10000&country=all&ssl=all&anonymity=elite"
+
+    controls = {
+        'view-feed': "[Enter]",
+        'view-http': "Right-click (Win/Linux) or Control-click (Mac)",
+        'verbosity': "Adjust verbosity slider for more results", 
+        'save-crawl': "Pantheon File Controller -> Save Pantheon Crawl",
+        'load-crawl': "Pantheon File Controller -> Load Pantheon Crawl",
+        'search-http': "Use the search bar on the HTTP window to search for keywords"
+    }

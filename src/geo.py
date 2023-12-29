@@ -22,12 +22,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 '''
 
-import sys
 from ip2geotools.databases.noncommercial import DbIpCity
 
 class IPGeolocation:
     @staticmethod
-    def get_location(ip_address):
+    def get_location_ip2(ip_address): 
         try:
             response = DbIpCity.get(ip_address, api_key='free')
             return {
