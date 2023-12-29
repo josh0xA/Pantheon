@@ -1,7 +1,7 @@
 '''
 MIT License
 
-Copyright (c) 2021 Josh Schiavone
+Copyright (c) 2023 Josh Schiavone
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -375,7 +375,7 @@ class Pantheon:
                                             font=("Arial", 9), text_color="blue", image_zoom_visibility=(0, float('inf'))))
             except UnboundLocalError: pass # this is fine
 
-        except ImportError:
+        except Exception as e: # this could be either an import error, or ratelimit error
             ip_location = IPGeolocation.get_location_ip2(selected_url)
             try:
                 if ip_location:
@@ -505,7 +505,6 @@ class Pantheon:
             self.load_logfile_handler(filename)
 
     def command_list(self):
-        # new tk window
         command_window = tk.Toplevel(root)
         command_window.title("Pantheon Commands")
         command_window.geometry("500x500")
