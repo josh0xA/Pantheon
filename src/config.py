@@ -22,8 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 '''
 import sys
+import tkinter as tk
 
 class PantheonConfiguration:
+
     PANTHEON_ERROR_CODE_STANDARD = -1
     PANTHEON_SUCCESS_CODE_STANDARD = 0
     PANTHEON_OS = ""
@@ -46,3 +48,15 @@ class PantheonConfiguration:
         'load-crawl': "Pantheon File Controller -> Load Pantheon Crawl",
         'search-http': "Use the search bar on the HTTP window to search for keywords"
     }
+
+    @staticmethod 
+    def pantheon_icon_handler(root):
+        if PantheonConfiguration.PANTHEON_OS == "Windows":
+            root.iconbitmap("imgs/pantheon_icon.ico")
+        if PantheonConfiguration.PANTHEON_OS == "Linux":
+            root.tk.call('wm', 'iconphoto', root._w, tk.PhotoImage(file='imgs/pantheon_icon.png'))
+        if PantheonConfiguration.PANTHEON_OS == "Darwin":
+            img = tk.Image("photo", file="imgs/pantheon_icon.png")
+            root.call('wm', 'iconphoto', root._w, img)
+        else:
+            return None

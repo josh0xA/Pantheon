@@ -71,6 +71,9 @@ class Pantheon:
         root.configure(bg="#000000")
         root.resizable(width=False, height=False)
         root.title(self.get_platform_title())
+
+        try: PantheonConfiguration.pantheon_icon_handler(root) 
+        except Exception: pass
    
     def create_widgets(self, root):
         self.results_box = tk.Listbox(root, selectmode=tk.SINGLE)
@@ -211,10 +214,13 @@ class Pantheon:
 
     def get_platform_title(self):
         if sys.platform == "win32":
+            PantheonConfiguration.PANTHEON_OS = "Windows"
             return f"Pantheon: Developed by {__author__} - Ver {__version__} - Pantheon user: Windows"
         elif sys.platform == "darwin":
+            PantheonConfiguration.PANTHEON_OS = "Darwin"
             return f"Pantheon: Developed by {__author__} - Ver {__version__} - Pantheon user: MacOS"
         elif sys.platform == "linux":
+            PantheonConfiguration.PANTHEON_OS = "Linux"
             return f"Pantheon: Developed by {__author__} - Ver {__version__} - Pantheon user: Linux"
         else:
             return f"Pantheon - Developed by {__author__}"
