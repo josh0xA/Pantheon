@@ -60,3 +60,4 @@ class PantheonConfiguration:
             root.call('wm', 'iconphoto', root._w, img)
         else:
             return None
+    

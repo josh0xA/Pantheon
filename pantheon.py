@@ -45,11 +45,11 @@ from src.crawler import PantheonWebcam
 from src.config import PantheonConfiguration
 from src.logger import PantheonLogger
 
-
 from src.geo import *
 
 from headers.agents import Agents
 import random
+
 
 __author__ = "Josh Schiavone"
 __version__ = "1.2"
@@ -378,7 +378,7 @@ class Pantheon:
 
                     self.markers.append(self.map_widget.set_marker(ip_location['latitude'], ip_location['longitude'], 
                                             text=f"{ip_location['city']}, {ip_location['country']}\n({ip_location['ip']})",
-                                            font=("Arial", 9), text_color="blue", image_zoom_visibility=(0, float('inf'))))
+                                            font=("Arial", 9), text_color="green", image_zoom_visibility=(0, float('inf'))))
             except UnboundLocalError: pass # this is fine
 
         except Exception as e: # this could be either an import error, or ratelimit error
@@ -396,7 +396,7 @@ class Pantheon:
 
                     self.markers.append(self.map_widget.set_marker(ip_location['latitude'], ip_location['longitude'], 
                                             text=f"{ip_location['city']}, {ip_location['country']}\n({ip_location['ip']})",
-                                            font=("Arial", 9), text_color="blue", image_zoom_visibility=(0, float('inf'))))
+                                            font=("Arial", 9), text_color="green", image_zoom_visibility=(0, float('inf'))))
 
             except UnboundLocalError: pass # this is fine
 
@@ -532,7 +532,7 @@ class Pantheon:
 
     def open_web_browser(self, url):
         webview.create_window('Pantheon Integrated Live Feed', url)
-        webview.start(private_mode=True)
+        webview.start(private_mode=True, user_agent=random.choice(Agents.useragent))
 
     def browser_load_url(self, event):
         selected_index = self.results_box.curselection()[0]
@@ -543,11 +543,13 @@ class Pantheon:
             selected_url = match.group(0)
         else:
             selected_url = selected_item
-                
+
         self.open_web_browser(selected_url)
 
+    def run(self):
+        root.mainloop()
 
 if __name__ == "__main__":
     root = tk.Tk()
     app = Pantheon(root)
-    root.mainloop()
+    app.run()
