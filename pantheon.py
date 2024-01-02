@@ -64,7 +64,7 @@ class Pantheon:
         self.ip_data = []
 
     def setup_window(self, root):
-        width, height = 1261, 807
+        width, height = 1261, 825
         screenwidth, screenheight = root.winfo_screenwidth(), root.winfo_screenheight()
         alignstr = '%dx%d+%d+%d' % ((width, height, (screenwidth - width) / 2, (screenheight - height) / 2))
         root.geometry(alignstr)
