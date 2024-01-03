@@ -77,7 +77,7 @@ class Pantheon:
    
     def create_widgets(self, root):
         self.results_box = tk.Listbox(root, selectmode=tk.SINGLE)
-        self.results_box2 = tk.Listbox(root, selectmode=tk.SINGLE)
+        self.results_box2 = tk.Text(root, wrap="word", font=("Arial", 12), bg="#000000", fg="#ffffff")
 
         self.setup_results_box()
         if sys.platform == "darwin":
@@ -93,7 +93,7 @@ class Pantheon:
         self.create_country_buttons(country_buttons)
 
         self.map_widget = tkintermapview.TkinterMapView(root, width=100, height=100, corner_radius=0)
-        self.map_widget.set_tile_server("https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", max_zoom=20)  
+        self.map_widget.set_tile_server("https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", max_zoom=25)  
 
         self.map_widget.place(x=650, y=470, width=530, height=300)
         self.map_widget.set_zoom(0)
@@ -149,19 +149,11 @@ class Pantheon:
 
         scrollbar = tk.Scrollbar(self.results_box, orient=tk.VERTICAL, activebackground="red")
         scrollbar.config(command=self.results_box.yview)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)            
         self.results_box.config(yscrollcommand=scrollbar.set)
 
-        # create another results box to the right of the main one
-        self.results_box2.pack(fill=tk.BOTH, expand=True)
-        self.results_box2["bg"] = "#000000"
-        self.results_box2["borderwidth"] = "3px"
-        ft = tkFont.Font(family="Arial", size=12)
-        self.results_box2["font"] = ft
-        self.results_box2["fg"] = "#9f9f9f"
         self.results_box2.place(x=650, y=180, width=530, height=250)
-
-
+    
     def create_country_buttons(self, country_buttons):
         x, y, row_height = 100, 5, 30
         for country, command in country_buttons.items():
@@ -292,7 +284,7 @@ class Pantheon:
         PantheonConfiguration.webcams_found = []
 
     def clear_results2(self):
-        self.results_box2.delete(0, tk.END)
+        self.results_box2.delete("1.0", tk.END)
 
     def clear_results3(self):
         self.results_box3.delete(0, tk.END)
@@ -362,40 +354,42 @@ class Pantheon:
             pass # Handle the case where the user clicks an empty listbox
         try: 
             import ipapi
-            ip_location = ipapi.location(ip=selected_url)
             try:
+                ip_location = ipapi.location(ip=selected_url)
                 if ip_location:
-                    self.results_box2.insert(tk.END, f"GeoDump for camera #{(selected_index + 1)}")
-                    self.results_box2.insert(tk.END, "*" * 45)
-                    self.results_box2.insert(tk.END, f"IP: {selected_url}")
-                    self.results_box2.insert(tk.END, f"City: {ip_location.get('city')}")
-                    self.results_box2.insert(tk.END, f"Region: {ip_location.get('region')}")
-                    self.results_box2.insert(tk.END, f"Country: {ip_location.get('country_name')}")
-                    self.results_box2.insert(tk.END, f"Latitude: {ip_location.get('latitude')}")
-                    self.results_box2.insert(tk.END, f"Longitude: {ip_location.get('longitude')}")
-                    self.results_box2.insert(tk.END, f"Postal: {ip_location.get('postal')}")
+                    self.results_box2.insert(tk.END, f"GeoDump for camera #{(selected_index + 1)}\n")
+                    self.results_box2.insert(tk.END, "*" * 45 + '\n')
+                    self.results_box2.insert(tk.END, f"IP: {selected_url}\n")
+                    self.results_box2.insert(tk.END, f"City: {ip_location.get('city')}\n")
+                    self.results_box2.insert(tk.END, f"Region: {ip_location.get('region')}\n")
+                    self.results_box2.insert(tk.END, f"Country: {ip_location.get('country_name')}\n")
+                    self.results_box2.insert(tk.END, f"Latitude: {ip_location.get('latitude')}\n")
+                    self.results_box2.insert(tk.END, f"Longitude: {ip_location.get('longitude')}\n")
+                    self.results_box2.insert(tk.END, f"Postal: {ip_location.get('postal')}\n")
                     self.results_box2.insert(tk.END, f"Organization/ISP: {ip_location.get('org')}")
 
                     self.markers.append(self.map_widget.set_marker(ip_location['latitude'], ip_location['longitude'], 
-                                            text=f"{ip_location['city']}, {ip_location['country']}\n({ip_location['ip']})",
+                                            text=f"{ip_location['city']}, {ip_location['country']} (#{selected_index + 1})\n({ip_location['ip']})",
                                             font=("Arial", 9), text_color="green", image_zoom_visibility=(0, float('inf'))))
-            except UnboundLocalError: pass # this is fine
 
-        except Exception as e: # this could be either an import error, or ratelimit error
-            ip_location = IPGeolocation.get_location_ip2(selected_url)
+            except UnboundLocalError as ule: pass # this is fine
+
+        except Exception as e: # this could be either an import error, or ratelimit error 
+            print(f"[INFO] {e} \n\t- not a fatal error, using secondary geolocation API. (ip2geotools)")
             try:
+                ip_location = IPGeolocation.get_location_ip2(selected_url)
                 if ip_location:
-                    self.results_box2.insert(tk.END, f"GeoDump for camera #{(selected_index + 1)}")
-                    self.results_box2.insert(tk.END, "*" * 45)
-                    self.results_box2.insert(tk.END, f"IP: {ip_location['ip']}")
-                    self.results_box2.insert(tk.END, f"City: {ip_location['city']}")
-                    self.results_box2.insert(tk.END, f"Region: {ip_location['region']}")
-                    self.results_box2.insert(tk.END, f"Country: {ip_location['country']}")
-                    self.results_box2.insert(tk.END, f"Latitude: {ip_location['latitude']}")
+                    self.results_box2.insert(tk.END, f"GeoDump for camera #{(selected_index + 1)}\n")
+                    self.results_box2.insert(tk.END, "*" * 45 + '\n')
+                    self.results_box2.insert(tk.END, f"IP: {ip_location['ip']}\n")
+                    self.results_box2.insert(tk.END, f"City: {ip_location['city']}\n")
+                    self.results_box2.insert(tk.END, f"Region: {ip_location['region']}\n")
+                    self.results_box2.insert(tk.END, f"Country: {ip_location['country']}\n")
+                    self.results_box2.insert(tk.END, f"Latitude: {ip_location['latitude']}\n")
                     self.results_box2.insert(tk.END, f"Longitude: {ip_location['longitude']}")
 
                     self.markers.append(self.map_widget.set_marker(ip_location['latitude'], ip_location['longitude'], 
-                                            text=f"{ip_location['city']}, {ip_location['country']}\n({ip_location['ip']})",
+                                            text=f"{ip_location['city']}, {ip_location['country']} (#{selected_index + 1})\n({ip_location['ip']})",
                                             font=("Arial", 9), text_color="green", image_zoom_visibility=(0, float('inf'))))
 
             except UnboundLocalError: pass # this is fine
@@ -451,6 +445,11 @@ class Pantheon:
 
         self.text_widget.config(state=tk.DISABLED) 
         self.text_widget.pack(expand=True, fill="both")
+
+        scrollbar = tk.Scrollbar(self.text_widget, orient=tk.VERTICAL, activebackground="red")
+        scrollbar.config(command=self.text_widget.yview)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)            
+        self.text_widget.config(yscrollcommand=scrollbar.set)
 
     def filter_http_data(self, response, search_query):
         start_pos = "1.0"
