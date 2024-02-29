@@ -31,7 +31,10 @@ Execution: ``python3 pantheon.py``
 - ``./distros/debian-kali_install.sh``
 
 ### MacOS
-- The regular installation steps above should suffice. If not, open up an issue. 
+- The regular installation steps above should suffice. If not, open up an issue.
+- or, you can just follow the steps above or download the official package <a href="https://joshschiavone.com/" target="_blank">here</a>.
+- Please note that you are going to have to run Pantheon higher privileges to utilize the file saving. <br/>
+- ``$ /Applications/Pantheon.app/Contents/MacOS/Pantheon`` - after installation. 
 
 ## Usage 
 <p align="center">
