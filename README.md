@@ -1,4 +1,4 @@
-# Pantheon - IoT Camera Reconnaissance and Live Viewer
+# Pantheon - Insecure Camera Intelligence
 <p align="center">
   <img src="/imgs/panth_logo.png">
 </p>
