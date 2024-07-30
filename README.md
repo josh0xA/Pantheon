@@ -1,4 +1,4 @@
-# Pantheon - Insecure Camera Intelligence
+# Pantheon
 <p align="center">
   <img src="/imgs/panth_logo.png">
 </p>
